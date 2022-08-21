@@ -24,7 +24,7 @@ const productCtrl = {
       const count = result[1].status === "fulfilled" ? result[1].value : 0;
       return res.status(200).json({products, count});
     } catch (error) {
-      return res.status(500).json({msg: error.message});
+      return res.status(500).json({msg: error});
     }
   },
   // get product
@@ -40,7 +40,7 @@ const productCtrl = {
       const review = await Review.find({product: req.params.id});
       return res.status(200).json({product, review});
     } catch (error) {
-      return res.status(500).json({msg: error.message});
+      return res.status(500).json({msg: error});
     }
   },
   // create product
@@ -80,7 +80,7 @@ const productCtrl = {
       await newProduct.save();
       return res.status(200).json(newProduct);
     } catch (error) {
-      return res.status(500).json({msg: error.message});
+      return res.status(500).json({msg: error});
     }
   },
   // update product
@@ -114,7 +114,7 @@ const productCtrl = {
         return res.status(400).json({msg: "This Product Does Not Exists."});
       return res.status(200).json(product);
     } catch (error) {
-      return res.status(500).json({msg: error.message});
+      return res.status(500).json({msg: error});
     }
   },
   // delete product
@@ -125,7 +125,7 @@ const productCtrl = {
         return res.status(400).json({msg: "This Product Does Not Exists."});
       return res.status(200).json({msg: "Product Delete Successful."});
     } catch (error) {
-      return res.status(500).json({msg: error.message});
+      return res.status(500).json({msg: error});
     }
   },
   // add image
@@ -142,7 +142,7 @@ const productCtrl = {
       );
       return res.json({msg: "Image Added."});
     } catch (error) {
-      return res.status(500).json({msg: error.message});
+      return res.status(500).json({msg: error});
     }
   },
 };

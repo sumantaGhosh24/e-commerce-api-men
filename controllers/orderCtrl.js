@@ -9,7 +9,7 @@ const orderCtrl = {
         .populate("orderItems.product");
       res.json(orders);
     } catch (error) {
-      return res.status(500).json({msg: error.message});
+      return res.status(500).json({msg: error});
     }
   },
   // get order
@@ -22,7 +22,7 @@ const orderCtrl = {
         return res.status(400).json({msg: "This Order doest not Exists."});
       res.json(order);
     } catch (error) {
-      return res.status(500).json({msg: error.message});
+      return res.status(500).json({msg: error});
     }
   },
   // create order
@@ -76,7 +76,7 @@ const orderCtrl = {
       await newOrder.save();
       res.json({msg: "Order Added"});
     } catch (error) {
-      return res.status(500).json({msg: error.message});
+      return res.status(500).json({msg: error});
     }
   },
   // update order
@@ -93,7 +93,7 @@ const orderCtrl = {
       if (!order) return res.status(400).json({msg: "Order doest not Exists."});
       return res.status(400).json(order);
     } catch (error) {
-      return res.status(500).json({msg: error.message});
+      return res.status(500).json({msg: error});
     }
   },
   // delete order
@@ -102,7 +102,7 @@ const orderCtrl = {
       await Order.findByIdAndDelete(req.params.id);
       res.json({msg: "Order Deleted."});
     } catch (error) {
-      return res.status(500).json({msg: error.message});
+      return res.status(500).json({msg: error});
     }
   },
   // get user order
@@ -115,7 +115,7 @@ const orderCtrl = {
         return res.status(400).json({msg: "This Order doest not Exists."});
       res.json(order);
     } catch (error) {
-      return res.status(500).json({msg: error.message});
+      return res.status(500).json({msg: error});
     }
   },
 };

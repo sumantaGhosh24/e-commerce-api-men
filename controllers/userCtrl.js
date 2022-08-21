@@ -110,7 +110,7 @@ const userCtrl = {
         msg: "A verification email has been sent, click the email link to activate your account.",
       });
     } catch (error) {
-      return res.status(500).json({msg: error.message});
+      return res.status(500).json({msg: error});
     }
   },
   // verify register
@@ -143,7 +143,7 @@ const userCtrl = {
         return res.json({accesstoken});
       });
     } catch (error) {
-      return res.status(500).json({msg: error.message});
+      return res.status(500).json({msg: error});
     }
   },
   // get refresh token
@@ -159,7 +159,7 @@ const userCtrl = {
         res.json({accesstoken});
       });
     } catch (error) {
-      return res.status(500).json({msg: error.message});
+      return res.status(500).json({msg: error});
     }
   },
   // add user data
@@ -203,7 +203,7 @@ const userCtrl = {
       }
       return res.json(user);
     } catch (error) {
-      return res.status(500).json({msg: error.message});
+      return res.status(500).json({msg: error});
     }
   },
   // add user address
@@ -232,7 +232,7 @@ const userCtrl = {
       }
       return res.json(user);
     } catch (error) {
-      return res.status(500).json({msg: error.message});
+      return res.status(500).json({msg: error});
     }
   },
   // login user
@@ -331,7 +331,7 @@ const userCtrl = {
         verify: true,
       });
     } catch (error) {
-      return res.status(500).json({msg: error.message});
+      return res.status(500).json({msg: error});
     }
   },
   // login verify
@@ -359,7 +359,7 @@ const userCtrl = {
         }
       });
     } catch (error) {
-      return res.status(500).json({msg: error.message});
+      return res.status(500).json({msg: error});
     }
   },
   // logout user
@@ -368,7 +368,7 @@ const userCtrl = {
       res.clearCookie("refreshtoken", {path: "/api/refresh_token"});
       res.json({msg: "Logged Out."});
     } catch (error) {
-      return res.status(500).json({msg: error.message});
+      return res.status(500).json({msg: error});
     }
   },
   // update user data
@@ -415,7 +415,7 @@ const userCtrl = {
       }
       return res.status(user);
     } catch (error) {
-      return res.status(500).json({msg: error.message});
+      return res.status(500).json({msg: error});
     }
   },
   // update user address
@@ -443,7 +443,7 @@ const userCtrl = {
         return res.status(400).json({msg: "User does not exists."});
       }
     } catch (error) {
-      return res.status(500).json({msg: error.message});
+      return res.status(500).json({msg: error});
     }
   },
   // delete user
@@ -453,7 +453,7 @@ const userCtrl = {
       if (!user) return res.status(400).json({msg: "User does not exists."});
       res.json({msg: "Product Deleted."});
     } catch (error) {
-      return res.status(500).json({msg: error.message});
+      return res.status(500).json({msg: error});
     }
   },
   // reset password
@@ -488,7 +488,7 @@ const userCtrl = {
       }
       return res.json(updateUser);
     } catch (error) {
-      return res.status(500).json({msg: error.message});
+      return res.status(500).json({msg: error});
     }
   },
   // get cart
@@ -498,7 +498,7 @@ const userCtrl = {
       if (!user) return res.status(400).json({msg: "User does not Exists."});
       res.json(user.cart);
     } catch (error) {
-      return res.status(500).json({msg: error.message});
+      return res.status(500).json({msg: error});
     }
   },
   // add to cart
@@ -514,7 +514,7 @@ const userCtrl = {
       );
       return res.json({msg: "Added to cart."});
     } catch (error) {
-      return res.status(500).json({msg: error.message});
+      return res.status(500).json({msg: error});
     }
   },
   // forgot password
@@ -580,7 +580,7 @@ const userCtrl = {
         msg: "A forgot password link send to your email, click the email link to forgot your password.",
       });
     } catch (error) {
-      return res.status(500).json({msg: error.message});
+      return res.status(500).json({msg: error});
     }
   },
   // validate confirm forgot password
@@ -600,7 +600,7 @@ const userCtrl = {
         return res.status(200).json({msg: "Now set your new password."});
       });
     } catch (error) {
-      return res.status(500).json({msg: error.message});
+      return res.status(500).json({msg: error});
     }
   },
   // confirm forgot password
@@ -630,7 +630,7 @@ const userCtrl = {
           .json({msg: "Your password has been updated, now login."});
       });
     } catch (error) {
-      return res.status(400).json({msg: error.message});
+      return res.status(400).json({msg: error});
     }
   },
   // get all users
@@ -652,7 +652,7 @@ const userCtrl = {
       const count = result[1].status === "fulfilled" ? result[1].value : 0;
       res.json({users, count});
     } catch (error) {
-      return res.status(500).json({msg: error.message});
+      return res.status(500).json({msg: error});
     }
   },
   // get user

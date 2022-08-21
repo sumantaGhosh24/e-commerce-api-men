@@ -31,6 +31,10 @@ const userSchema = new mongoose.Schema(
     },
     image: {
       type: Object,
+      default: {
+        public_id: "e-commerce-api-men/z3c01tgtolouzyvccvmj",
+        url: "https://res.cloudinary.com/dzqgzsnoc/image/upload/v1661089281/e-commerce-api-men/z3c01tgtolouzyvccvmj.jpg",
+      },
     },
     dob: {
       type: String,

@@ -4,7 +4,7 @@ const paymentCtrl = {
   test: async (req, res) => {
     try {
     } catch (error) {
-      return res.status(500).json({msg: error.message});
+      return res.status(500).json({msg: error});
     }
   },
 };
