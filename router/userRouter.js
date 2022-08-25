@@ -31,7 +31,7 @@ router.get("/logout", userCtrl.logout);
 
 // update user data
 router.put(
-  "/user-data/:id",
+  "/update-user-data/:id",
   auth,
   checkValidUserOrAdmin,
   userCtrl.userDataUpdate
@@ -39,20 +39,14 @@ router.put(
 
 // update user address
 router.put(
-  "/user-data/:id",
+  "/update-user-address/:id",
   auth,
   checkValidUserOrAdmin,
   userCtrl.userAddressUpdate
 );
 
 // delete user
-router.delete(
-  "/user/:id",
-  auth,
-  checkValidUserOrAdmin,
-  checkValidUserOrAdmin,
-  userCtrl.deleteUser
-);
+router.delete("/user/:id", auth, checkValidUserOrAdmin, userCtrl.deleteUser);
 
 // reset password
 router.post("/reset-password", auth, userCtrl.resetPassword);

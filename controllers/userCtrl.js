@@ -165,15 +165,7 @@ const userCtrl = {
   // add user data
   userData: async (req, res) => {
     try {
-      const {
-        firstName,
-        lastName,
-        username,
-        image,
-        dob,
-        gender,
-        twoStepVerification,
-      } = req.body;
+      const {firstName, lastName, username, dob, gender} = req.body;
       const errors = [];
       for (const key in req.body) {
         if (!req.body[key]) {
@@ -193,10 +185,10 @@ const userCtrl = {
         firstName: firstName.toLowerCase(),
         lastName: lastName.toLowerCase(),
         username: username.toLowerCase(),
-        image,
+        image: req.body.image,
         dob,
         gender: gender.toLowerCase(),
-        twoStepVerification,
+        twoStepVerification: req.body.twoStepVerification,
       });
       if (!user) {
         return res.status(400).json({msg: "User does not exists."});
@@ -348,14 +340,18 @@ const userCtrl = {
         }
         if (user.num == req.body.code) {
           res.clearCookie("check");
-          const accesstoken = createAccessToken({id: user._id});
-          const refreshtoken = createRefreshToken({id: user._id});
+          const accesstoken = createAccessToken({id: user.id});
+          const refreshtoken = createRefreshToken({id: user.id});
           res.cookie("refreshtoken", refreshtoken, {
             httpsOnly: true,
             path: "/api/refresh_token",
             maxAge: 7 * 24 * 60 * 60 * 1000,
           });
           return res.json({accesstoken});
+        } else {
+          return res
+            .status(400)
+            .json({msg: "Invalid otp, please check your email again."});
         }
       });
     } catch (error) {
@@ -374,15 +370,7 @@ const userCtrl = {
   // update user data
   userDataUpdate: async (req, res) => {
     try {
-      const {
-        firstName,
-        lastName,
-        username,
-        image,
-        dob,
-        gender,
-        twoStepVerification,
-      } = req.body;
+      const {firstName, lastName, username, image, dob, gender} = req.body;
       const errors = [];
       for (const key in req.body) {
         if (!req.body[key]) {
@@ -408,12 +396,12 @@ const userCtrl = {
         image,
         dob,
         gender: gender.toLowerCase(),
-        twoStepVerification,
+        twoStepVerification: req.body.twoStepVerification,
       });
       if (!user) {
         return res.status(400).json({msg: "User does not exists."});
       }
-      return res.status(user);
+      return res.json(user);
     } catch (error) {
       return res.status(500).json({msg: error});
     }
@@ -442,6 +430,7 @@ const userCtrl = {
       if (!user) {
         return res.status(400).json({msg: "User does not exists."});
       }
+      return res.json(user);
     } catch (error) {
       return res.status(500).json({msg: error});
     }
@@ -451,7 +440,7 @@ const userCtrl = {
     try {
       const user = await User.findByIdAndDelete(req.params.id);
       if (!user) return res.status(400).json({msg: "User does not exists."});
-      res.json({msg: "Product Deleted."});
+      res.json({msg: "User Deleted."});
     } catch (error) {
       return res.status(500).json({msg: error});
     }
@@ -474,7 +463,7 @@ const userCtrl = {
       if (!isMatch) {
         return res.status(400).json({msg: "Invalid login credentials."});
       }
-      if (newPassword !== cf_newPassword) {
+      if (newPassword != cf_newPassword) {
         return res
           .status(400)
           .json({msg: "Password and Confirm Password not match."});
