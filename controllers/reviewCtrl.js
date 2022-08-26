@@ -13,7 +13,7 @@ const reviewCtrl = {
       }
       return res.status(200).json(reviews);
     } catch (error) {
-      return res.status(500).json({msg: error});
+      return res.status(500).json({msg: error.message});
     }
   },
   // get review
@@ -27,7 +27,7 @@ const reviewCtrl = {
         return res.status(400).json({msg: "This Review doest not Exists."});
       return res.status(200).json(review);
     } catch (error) {
-      return res.status(500).json({msg: error});
+      return res.status(500).json({msg: error.message});
     }
   },
   // create review
@@ -54,7 +54,7 @@ const reviewCtrl = {
       await newReview.save();
       return res.status(200).json(newReview);
     } catch (error) {
-      return res.status(500).json({msg: error});
+      return res.status(500).json({msg: error.message});
     }
   },
   // update review
@@ -70,7 +70,7 @@ const reviewCtrl = {
         return res.status(400).json({msg: "This Review doest not Exists."});
       return res.status(200).json(review);
     } catch (error) {
-      return res.status(500).json({msg: error});
+      return res.status(500).json({msg: error.message});
     }
   },
   // delete review
@@ -81,7 +81,7 @@ const reviewCtrl = {
         return res.status(400).json({msg: "This Review doest not Exists."});
       return res.status(200).json({msg: "Review Delete Successful."});
     } catch (error) {
-      return res.status(500).json({msg: error});
+      return res.status(500).json({msg: error.message});
     }
   },
 };

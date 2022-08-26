@@ -35,7 +35,7 @@ const categoryCtrl = {
       const categoryList = structureCategories(categories);
       res.json({categoryList});
     } catch (error) {
-      return res.status(500).json({msg: error});
+      return res.status(500).json({msg: error.message});
     }
   },
   // create category
@@ -57,7 +57,7 @@ const categoryCtrl = {
       await newCategory.save();
       res.json({msg: "Category Created."});
     } catch (error) {
-      return res.status(500).json({msg: error});
+      return res.status(500).json({msg: error.message});
     }
   },
   // delete category
@@ -94,7 +94,7 @@ const categoryCtrl = {
         return res.status(400).json({msg: "This Category Does Not Exists."});
       return res.status(200).json(category);
     } catch (error) {
-      return res.status(500).json({msg: error});
+      return res.status(500).json({msg: error.message});
     }
   },
 };

@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 
 import {APIFeatures} from "../lib/features.js";
-import {User, Order} from "../models/index.js";
+import {User, Order, Product} from "../models/index.js";
 
 const userCtrl = {
   // register user
@@ -110,7 +110,7 @@ const userCtrl = {
         msg: "A verification email has been sent, click the email link to activate your account.",
       });
     } catch (error) {
-      return res.status(500).json({msg: error});
+      return res.status(500).json({msg: error.message});
     }
   },
   // verify register
@@ -143,7 +143,7 @@ const userCtrl = {
         return res.json({accesstoken});
       });
     } catch (error) {
-      return res.status(500).json({msg: error});
+      return res.status(500).json({msg: error.message});
     }
   },
   // get refresh token
@@ -159,7 +159,7 @@ const userCtrl = {
         res.json({accesstoken});
       });
     } catch (error) {
-      return res.status(500).json({msg: error});
+      return res.status(500).json({msg: error.message});
     }
   },
   // add user data
@@ -195,7 +195,7 @@ const userCtrl = {
       }
       return res.json(user);
     } catch (error) {
-      return res.status(500).json({msg: error});
+      return res.status(500).json({msg: error.message});
     }
   },
   // add user address
@@ -224,7 +224,7 @@ const userCtrl = {
       }
       return res.json(user);
     } catch (error) {
-      return res.status(500).json({msg: error});
+      return res.status(500).json({msg: error.message});
     }
   },
   // login user
@@ -323,7 +323,7 @@ const userCtrl = {
         verify: true,
       });
     } catch (error) {
-      return res.status(500).json({msg: error});
+      return res.status(500).json({msg: error.message});
     }
   },
   // login verify
@@ -355,7 +355,7 @@ const userCtrl = {
         }
       });
     } catch (error) {
-      return res.status(500).json({msg: error});
+      return res.status(500).json({msg: error.message});
     }
   },
   // logout user
@@ -364,7 +364,7 @@ const userCtrl = {
       res.clearCookie("refreshtoken", {path: "/api/refresh_token"});
       res.json({msg: "Logged Out."});
     } catch (error) {
-      return res.status(500).json({msg: error});
+      return res.status(500).json({msg: error.message});
     }
   },
   // update user data
@@ -403,7 +403,7 @@ const userCtrl = {
       }
       return res.json(user);
     } catch (error) {
-      return res.status(500).json({msg: error});
+      return res.status(500).json({msg: error.message});
     }
   },
   // update user address
@@ -432,7 +432,7 @@ const userCtrl = {
       }
       return res.json(user);
     } catch (error) {
-      return res.status(500).json({msg: error});
+      return res.status(500).json({msg: error.message});
     }
   },
   // delete user
@@ -442,7 +442,7 @@ const userCtrl = {
       if (!user) return res.status(400).json({msg: "User does not exists."});
       res.json({msg: "User Deleted."});
     } catch (error) {
-      return res.status(500).json({msg: error});
+      return res.status(500).json({msg: error.message});
     }
   },
   // reset password
@@ -477,17 +477,24 @@ const userCtrl = {
       }
       return res.json(updateUser);
     } catch (error) {
-      return res.status(500).json({msg: error});
+      return res.status(500).json({msg: error.message});
     }
   },
   // get cart
   getCart: async (req, res) => {
     try {
-      const user = await User.findById(req.user.id);
+      const user = await User.findById(req.user.id).select("cart");
       if (!user) return res.status(400).json({msg: "User does not Exists."});
-      res.json(user.cart);
+      const userCart = [];
+      for (const ca of user.cart) {
+        const product = await Product.findById(ca.product).select(
+          "_id title image description content category brand price stock"
+        );
+        userCart.push({product, quantity: ca.quantity});
+      }
+      res.json(userCart);
     } catch (error) {
-      return res.status(500).json({msg: error});
+      return res.status(500).json({msg: error.message});
     }
   },
   // add to cart
@@ -503,14 +510,14 @@ const userCtrl = {
       );
       return res.json({msg: "Added to cart."});
     } catch (error) {
-      return res.status(500).json({msg: error});
+      return res.status(500).json({msg: error.message});
     }
   },
   // forgot password
   forgotPassword: async (req, res) => {
     try {
       const {email} = req.body;
-      const user = await User.findOne(email);
+      const user = await User.findOne({email});
       if (!user) {
         return res.status(400).json({msg: "Email does not exist."});
       }
@@ -561,7 +568,7 @@ const userCtrl = {
 <div class="container-fluid bg-primary text-center"><h1 class="text-white p-5">E-Commerce Clone || Forgot Password</h1></div>
 <div class="container my-5"><h2 class="fw-bold">Hello,</h2><p class="text-muted">Click below button to forgot your password.</p></div>
 <div class="container my-5"><p class="text-muted">If you not ask for forgot password in your email, you can ignore this email.</p><h2 class="fw-bold">Thanks for Register our website.</h2></div>
-<div class="container mb-5"><div class="position-relative"><a class="position-absolute top-50 start-50 p-3 btn btn-primary" href="${process.env.BASE_URL}/register-verify?token=${check}">Activate Account</a></div></div>
+<div class="container mb-5"><div class="position-relative"><a class="position-absolute top-50 start-50 p-3 btn btn-primary" href="${process.env.BASE_URL}/validate-confirm-forgot-password?token=${check}">Forgot Password</a></div></div>
 </body>
 </html>`,
       });
@@ -569,7 +576,7 @@ const userCtrl = {
         msg: "A forgot password link send to your email, click the email link to forgot your password.",
       });
     } catch (error) {
-      return res.status(500).json({msg: error});
+      return res.status(500).json({msg: error.message});
     }
   },
   // validate confirm forgot password
@@ -589,14 +596,14 @@ const userCtrl = {
         return res.status(200).json({msg: "Now set your new password."});
       });
     } catch (error) {
-      return res.status(500).json({msg: error});
+      return res.status(500).json({msg: error.message});
     }
   },
   // confirm forgot password
   confirmForgotPassword: async (req, res) => {
     try {
       const {password, cf_password} = req.body;
-      const token = req.cookie.token;
+      const token = req.cookies.token;
       if (!token) {
         return res.status(400).json({
           msg: "Something wrong with your link, click your email link again.",
@@ -619,7 +626,7 @@ const userCtrl = {
           .json({msg: "Your password has been updated, now login."});
       });
     } catch (error) {
-      return res.status(400).json({msg: error});
+      return res.status(400).json({msg: error.message});
     }
   },
   // get all users
@@ -641,7 +648,7 @@ const userCtrl = {
       const count = result[1].status === "fulfilled" ? result[1].value : 0;
       res.json({users, count});
     } catch (error) {
-      return res.status(500).json({msg: error});
+      return res.status(500).json({msg: error.message});
     }
   },
   // get user

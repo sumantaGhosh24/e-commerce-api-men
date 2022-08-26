@@ -36,7 +36,7 @@ const uploadCtrl = {
         {folder: "e-commerce-api-men"},
         async (error, result) => {
           if (error) {
-            return res.status(400).json({msg: error});
+            return res.status(400).json({msg: error.message});
           }
           removeTmp(file.tempFilePath);
           return res.json({
@@ -46,7 +46,7 @@ const uploadCtrl = {
         }
       );
     } catch (error) {
-      return res.status(500).json({msg: error});
+      return res.status(500).json({msg: error.message});
     }
   },
   // upload images
@@ -77,7 +77,7 @@ const uploadCtrl = {
           {folder: "e-commerce-api-men"},
           async (error, result) => {
             if (error) {
-              return res.status(400).json({msg: error});
+              return res.status(400).json({msg: error.message});
             }
             removeTmp(image.tempFilePath);
             images.push({public_id: result.public_id, url: result.secure_url});
@@ -86,7 +86,7 @@ const uploadCtrl = {
       }
       return res.json(images);
     } catch (error) {
-      return res.status(500).json({msg: error});
+      return res.status(500).json({msg: error.message});
     }
   },
   // delete image
@@ -102,7 +102,7 @@ const uploadCtrl = {
         res.json({msg: "Image Deleted Successfully."});
       });
     } catch (error) {
-      return res.status(500).json({msg: error});
+      return res.status(500).json({msg: error.message});
     }
   },
 };
