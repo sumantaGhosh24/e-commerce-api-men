@@ -128,23 +128,6 @@ const productCtrl = {
       return res.status(500).json({msg: error.message});
     }
   },
-  // add image
-  addImage: async (req, res) => {
-    try {
-      const product = await Product.findById(req.params.id);
-      if (!product)
-        return res.status(400).json({msg: "Product doest not Exists."});
-      await Product.findOneAndUpdate(
-        {_id: req.params.id},
-        {
-          image: req.body.image,
-        }
-      );
-      return res.json({msg: "Image Added."});
-    } catch (error) {
-      return res.status(500).json({msg: error.message});
-    }
-  },
 };
 
 export default productCtrl;

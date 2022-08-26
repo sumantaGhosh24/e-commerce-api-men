@@ -16,7 +16,6 @@ router
   .route("/product/:id")
   .get(productCtrl.getProduct)
   .put(auth, authAdmin, productCtrl.updateProduct)
-  .delete(auth, authAdmin, productCtrl.deleteProduct)
-  .patch(auth, authAdmin, productCtrl.addImage);
+  .delete(auth, authAdmin, productCtrl.deleteProduct);
 
 export default router;

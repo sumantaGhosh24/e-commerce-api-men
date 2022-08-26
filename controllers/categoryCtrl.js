@@ -83,7 +83,8 @@ const categoryCtrl = {
   updateCategory: async (req, res) => {
     try {
       const {name, image, parentId} = req.body;
-      const cat = {name, image};
+      const slug = slugify(name, {lower: true, trim: true});
+      const cat = {name, image, slug};
       if (parentId !== "") {
         cat.parentId = parentId;
       }
