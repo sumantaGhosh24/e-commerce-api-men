@@ -1,4 +1,5 @@
 export {default as categoryCtrl} from "./categoryCtrl.js";
+export {default as brandCtrl} from "./brandCtrl.js";
 export {default as orderCtrl} from "./orderCtrl.js";
 export {default as paymentCtrl} from "./paymentCtrl.js";
 export {default as productCtrl} from "./productCtrl.js";

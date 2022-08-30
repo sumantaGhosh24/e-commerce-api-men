@@ -9,6 +9,7 @@ import helmet from "helmet";
 
 import {
   categoryRouter,
+  brandRouter,
   orderRouter,
   paymentRouter,
   productRouter,
@@ -40,6 +41,7 @@ mongoose.connect(process.env.MONGODB_URL, (err) => {
 
 // setup routes
 app.use("/api", categoryRouter);
+app.use("/api", brandRouter);
 app.use("/api", orderRouter);
 app.use("/api", paymentRouter);
 app.use("/api", productRouter);

@@ -1,6 +1,6 @@
-# E-Commerce Clone Backend MEN(mongodb, express, node)
+# E-Commerce Clone Backend API MEN(mongodb, express, node)
 
-node, express, mongodb, bcrypt, cloudinary, cookie-parser, cors, dotenv, express-fileupload, helmet, jsonwebtoken, mongoose, morgan, nodemailer, slugify
+node, express, mongodb, bcrypt, cloudinary, cookie-parser, cors, dotenv, express-fileupload, helmet, jsonwebtoken, mongoose, morgan, nodemailer, slugify, razorpay, shortid
 
 
 ## Environment Variables
@@ -16,6 +16,8 @@ To run this project, you will need to add the following environment variables to
 `BASE_URL`
 `EMAIL`
 `PASSWORD`
+`RAZORPAY_KEY_ID`
+`RAZORPAY_KEY_SECRET`
 
 
 ## Authors
@@ -25,6 +27,10 @@ To run this project, you will need to add the following environment variables to
 
 ## Tech Stack
 
-**Technology:** Node, Express, Cloudinary
+**Backend:** Node, Express
 
 **Database:** Mongodb
+
+**Image Cloud Store:** Cloudinary
+
+**Payment Gateway:** Razorpay

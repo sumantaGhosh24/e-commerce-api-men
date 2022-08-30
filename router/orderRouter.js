@@ -1,12 +1,12 @@
 import express from "express";
 
 import {orderCtrl} from "../controllers/index.js";
-import {auth, checkValidUserOrAdmin} from "../middleware/index.js";
+import {auth, authAdmin, checkValidUserOrAdmin} from "../middleware/index.js";
 
 const router = express.Router();
 
 // get orders
-router.get("/orders", auth, checkValidUserOrAdmin, orderCtrl.getOrders);
+router.get("/orders", auth, authAdmin, orderCtrl.getOrders);
 
 // create order
 router.post("/order", auth, orderCtrl.createOrder);

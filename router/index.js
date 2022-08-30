@@ -1,4 +1,5 @@
 export {default as categoryRouter} from "./categoryRouter.js";
+export {default as brandRouter} from "./brandRouter.js";
 export {default as orderRouter} from "./orderRouter.js";
 export {default as paymentRouter} from "./paymentRouter.js";
 export {default as productRouter} from "./productRouter.js";
