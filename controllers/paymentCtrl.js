@@ -3,6 +3,10 @@ import Razorpay from "razorpay";
 import crypto from "crypto";
 import fs from "fs";
 
+import dotenv from "dotenv";
+
+dotenv.config();
+
 import {Order} from "../models/index.js";
 
 const razorpay = new Razorpay({

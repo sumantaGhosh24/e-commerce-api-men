@@ -14,6 +14,7 @@ To run this project, you will need to add the following environment variables to
 `REFRESH_TOKEN_SECRET`
 `ACCESS_TOKEN_SECRET`
 `BASE_URL`
+`FRONTEND_URL`
 `EMAIL`
 `PASSWORD`
 `RAZORPAY_KEY_ID`

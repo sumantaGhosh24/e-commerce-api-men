@@ -102,7 +102,7 @@ const userCtrl = {
 <div class="container-fluid bg-primary text-center"><h1 class="text-white p-5">E-Commerce Clone || Register Verification</h1></div>
 <div class="container my-5"><h2 class="fw-bold">Hello,</h2><p class="text-muted">Click below button to activate your account.</p></div>
 <div class="container my-5"><p class="text-muted">If you not ask for verify your account, you can ignore this email.</p><h2 class="fw-bold">Thanks for Register our website.</h2></div>
-<div class="container mb-5"><div class="position-relative"><a class="position-absolute top-50 start-50 p-3 btn btn-primary" href="${process.env.BASE_URL}/register-verify?token=${token}">Activate Account</a></div></div>
+<div class="container mb-5"><div class="position-relative"><a class="position-absolute top-50 start-50 p-3 btn btn-primary" href="${process.env.FRONTEND_URL}/register-verify?token=${token}">Activate Account</a></div></div>
 </body>
 </html>`,
       });
@@ -568,7 +568,7 @@ const userCtrl = {
 <div class="container-fluid bg-primary text-center"><h1 class="text-white p-5">E-Commerce Clone || Forgot Password</h1></div>
 <div class="container my-5"><h2 class="fw-bold">Hello,</h2><p class="text-muted">Click below button to forgot your password.</p></div>
 <div class="container my-5"><p class="text-muted">If you not ask for forgot password in your email, you can ignore this email.</p><h2 class="fw-bold">Thanks for Register our website.</h2></div>
-<div class="container mb-5"><div class="position-relative"><a class="position-absolute top-50 start-50 p-3 btn btn-primary" href="${process.env.BASE_URL}/validate-confirm-forgot-password?token=${check}">Forgot Password</a></div></div>
+<div class="container mb-5"><div class="position-relative"><a class="position-absolute top-50 start-50 p-3 btn btn-primary" href="${process.env.FRONTEND_URL}/validate-confirm-forgot-password?token=${check}">Forgot Password</a></div></div>
 </body>
 </html>`,
       });
