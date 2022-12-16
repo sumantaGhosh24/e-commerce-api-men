@@ -3,7 +3,7 @@ import {User} from "../models/index.js";
 const authAdmin = async (req, res, next) => {
   try {
     const user = await User.findOne({_id: req.user.id});
-    if (user.role === 0)
+    if (user.role === "user")
       return res
         .status(400)
         .json({msg: "Only admin can access this resource."});
@@ -12,5 +12,3 @@ const authAdmin = async (req, res, next) => {
     return res.status(500).json({msg: error.message});
   }
 };
-
-export default authAdmin;

@@ -14,5 +14,3 @@ const checkValidUserOrAdmin = async (req, res, next) => {
     return res.status(500).json({msg: error.message});
   }
 };
-
-export default checkValidUserOrAdmin;
