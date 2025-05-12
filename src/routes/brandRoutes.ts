@@ -12,7 +12,7 @@ router
 
 router
   .route("/brand/:id")
-  .delete(authAdmin, brandCtrl.getBrand)
+  .get(authAdmin, brandCtrl.getBrand)
   .put(authAdmin, brandCtrl.updateBrand)
   .delete(authAdmin, brandCtrl.deleteBrand);
 
