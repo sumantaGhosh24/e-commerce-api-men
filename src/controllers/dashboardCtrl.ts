@@ -6,10 +6,23 @@ import Order, {IOrder} from "../models/orderModel";
 import Review, {IReview} from "../models/reviewModel";
 import Category, {ICategory} from "../models/categoryModel";
 import {IReqAuth} from "../types";
+import redisClient from "../lib/redis";
+import {CACHE_KEYS} from "../lib/cacheKeys";
+
+const CACHE_TTL = 60 * 10;
 
 const dashboardCtrl = {
   getAdminDashboard: async (req: Request, res: Response) => {
     try {
+      const cacheKey = CACHE_KEYS.ADMIN_DASHBOARD;
+
+      const cached = await redisClient.get(cacheKey);
+
+      if (cached) {
+        res.status(200).json(JSON.parse(cached));
+        return;
+      }
+
       const totalUsers = await User.countDocuments();
       const activeUsers = await User.countDocuments({status: "active"});
       const totalProduct = await Product.countDocuments();
@@ -49,6 +62,25 @@ const dashboardCtrl = {
       ]);
       const totalRevenue = totalOrderPrice[0]?.total || 0;
 
+      await redisClient.setEx(
+        cacheKey,
+        CACHE_TTL,
+        JSON.stringify({
+          totalUsers,
+          activeUsers,
+          totalProduct,
+          totalOrders,
+          totalReviews,
+          totalCategories,
+          recentUsers,
+          recentProducts,
+          recentOrders,
+          recentReviews,
+          recentCategories,
+          totalRevenue,
+        })
+      );
+
       res.status(200).json({
         totalUsers,
         activeUsers,
@@ -71,7 +103,16 @@ const dashboardCtrl = {
   },
   getDashboard: async (req: IReqAuth, res: Response) => {
     try {
-      const userId = req.user?._id;
+      const userId = req.user?._id as string;
+
+      const cacheKey = CACHE_KEYS.USER_DASHBOARD(userId);
+
+      const cached = await redisClient.get(cacheKey);
+
+      if (cached) {
+        res.status(200).json(JSON.parse(cached));
+        return;
+      }
 
       const user = await User.findById(userId);
       if (!user) {
@@ -94,6 +135,18 @@ const dashboardCtrl = {
         {$match: {user: userId}},
         {$group: {_id: null, total: {$sum: "$totalPrice"}}},
       ]);
+
+      await redisClient.setEx(
+        cacheKey,
+        CACHE_TTL,
+        JSON.stringify({
+          user,
+          userOrders,
+          userReviews,
+          totalOrders: totalOrdersByUser[0]?.total || 0,
+          totalOrderPrice: totalOrderPriceByUser[0]?.total || 0,
+        })
+      );
 
       res.status(200).json({
         user,

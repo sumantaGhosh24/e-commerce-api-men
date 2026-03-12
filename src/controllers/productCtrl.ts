@@ -3,10 +3,24 @@ import {Request, Response} from "express";
 import Product from "../models/productModel";
 import {APIFeatures} from "../lib";
 import {IReqAuth} from "../types";
+import redisClient from "../lib/redis";
+import {CACHE_KEYS} from "../lib/cacheKeys";
+
+const CACHE_TTL = 60 * 10;
 
 const productCtrl = {
   getProducts: async (req: Request, res: Response) => {
     try {
+      const queryKey = JSON.stringify(req.query);
+      const cacheKey = CACHE_KEYS.PRODUCTS(queryKey);
+
+      const cachedProducts = await redisClient.get(cacheKey);
+
+      if (cachedProducts) {
+        res.status(200).json(JSON.parse(cachedProducts));
+        return;
+      }
+
       const features = new APIFeatures(
         Product.find()
           .populate("owner", "_id username email mobileNumber image")
@@ -30,6 +44,12 @@ const productCtrl = {
       const count =
         result[1].status === "fulfilled" ? result[1].value.length : 0;
 
+      await redisClient.setEx(
+        cacheKey,
+        CACHE_TTL,
+        JSON.stringify({products, count})
+      );
+
       res.status(200).json({products, count});
       return;
     } catch (error: any) {
@@ -39,6 +59,15 @@ const productCtrl = {
   },
   getProduct: async (req: Request, res: Response) => {
     try {
+      const cacheKey = CACHE_KEYS.PRODUCT(req.params.id);
+
+      const cachedProduct = await redisClient.get(cacheKey);
+
+      if (cachedProduct) {
+        res.status(200).json(JSON.parse(cachedProduct));
+        return;
+      }
+
       const product = await Product.findById(req.params.id)
         .populate("owner", "_id username email mobileNumber image")
         .populate("category", "_id name image");
@@ -46,6 +75,8 @@ const productCtrl = {
         res.status(404).json({message: "Product not found."});
         return;
       }
+
+      await redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(product));
 
       res.status(200).json(product);
       return;
@@ -101,6 +132,9 @@ const productCtrl = {
       });
       await newProduct.save();
 
+      const keys = await redisClient.keys("products:*");
+      if (keys.length) await redisClient.del(keys);
+
       res.json({message: "Product created successfully."});
       return;
     } catch (error: any) {
@@ -139,6 +173,11 @@ const productCtrl = {
       if (sold) product.sold = sold;
       await product.save();
 
+      await redisClient.del(CACHE_KEYS.PRODUCT(req.params.id));
+
+      const keys = await redisClient.keys("products:*");
+      if (keys.length) await redisClient.del(keys);
+
       res.json({message: "Product updated successfully."});
       return;
     } catch (error: any) {
@@ -156,6 +195,11 @@ const productCtrl = {
 
       product.images = [...product.images, ...req.body.images];
       await product.save();
+
+      await redisClient.del(CACHE_KEYS.PRODUCT(req.params.id));
+
+      const keys = await redisClient.keys("products:*");
+      if (keys.length) await redisClient.del(keys);
 
       res.json({message: "Image added successfully."});
       return;
@@ -184,6 +228,11 @@ const productCtrl = {
       );
       await product.save();
 
+      await redisClient.del(CACHE_KEYS.PRODUCT(req.params.id));
+
+      const keys = await redisClient.keys("products:*");
+      if (keys.length) await redisClient.del(keys);
+
       res.json({message: "Image removed successfully."});
       return;
     } catch (error: any) {
@@ -200,6 +249,11 @@ const productCtrl = {
       }
 
       await Product.findByIdAndDelete(req.params.id);
+
+      await redisClient.del(CACHE_KEYS.PRODUCT(req.params.id));
+
+      const keys = await redisClient.keys("products:*");
+      if (keys.length) await redisClient.del(keys);
 
       res.json({message: "Product deleted successfully."});
       return;

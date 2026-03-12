@@ -7,8 +7,12 @@ import {IReqAuth} from "../types";
 import {APIFeatures} from "../lib";
 import Order from "../models/orderModel";
 import Cart from "../models/cartModel";
+import redisClient from "../lib/redis";
+import {CACHE_KEYS} from "../lib/cacheKeys";
 
 dotenv.config();
+
+const CACHE_TTL = 60 * 10;
 
 const instance = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID!,
@@ -85,6 +89,9 @@ const orderCtrl = {
 
       await Cart.findByIdAndDelete(cartId);
 
+      const keys = await redisClient.keys("orders:*");
+      if (keys.length) await redisClient.del(keys);
+
       res.json({
         message: "success",
         orderId: razorpayOrderId,
@@ -98,6 +105,16 @@ const orderCtrl = {
   },
   getOrders: async (req: Request, res: Response) => {
     try {
+      const queryKey = JSON.stringify(req.query);
+      const cacheKey = CACHE_KEYS.ORDERS(queryKey);
+
+      const cached = await redisClient.get(cacheKey);
+
+      if (cached) {
+        res.status(200).json(JSON.parse(cached));
+        return;
+      }
+
       const features = new APIFeatures(
         Order.find()
           .populate("user", "_id username email mobileNumber image")
@@ -115,6 +132,12 @@ const orderCtrl = {
       const count =
         result[1].status === "fulfilled" ? result[1].value.length : 0;
 
+      await redisClient.setEx(
+        cacheKey,
+        CACHE_TTL,
+        JSON.stringify({orders, count})
+      );
+
       res.status(200).json({orders, count});
       return;
     } catch (error: any) {
@@ -124,6 +147,15 @@ const orderCtrl = {
   },
   getOrder: async (req: Request, res: Response) => {
     try {
+      const cacheKey = CACHE_KEYS.ORDER(req.params.id);
+
+      const cached = await redisClient.get(cacheKey);
+
+      if (cached) {
+        res.json(JSON.parse(cached));
+        return;
+      }
+
       const order = await Order.findById(req.params.id)
         .populate("user", "_id username email mobileNumber image")
         .populate("product");
@@ -131,6 +163,9 @@ const orderCtrl = {
         res.status(400).json({message: "This order does not exists."});
         return;
       }
+
+      await redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(order));
+
       res.json(order);
       return;
     } catch (error: any) {
@@ -150,6 +185,12 @@ const orderCtrl = {
         res.status(400).json({message: "Order does not exists."});
         return;
       }
+
+      await redisClient.del(CACHE_KEYS.ORDER(req.params.id));
+
+      const keys = await redisClient.keys("orders:*");
+      if (keys.length) await redisClient.del(keys);
+
       res.json({message: "Order updated successfully."});
       return;
     } catch (error: any) {
@@ -159,16 +200,25 @@ const orderCtrl = {
   },
   getUserOrders: async (req: IReqAuth, res: Response) => {
     try {
+      const userId = req.user?._id as string;
+      const queryKey = JSON.stringify(req.query);
+
+      const cacheKey = CACHE_KEYS.USER_ORDERS(userId, queryKey);
+
+      const cached = await redisClient.get(cacheKey);
+
+      if (cached) {
+        res.status(200).json(JSON.parse(cached));
+        return;
+      }
+
       const features = new APIFeatures(
-        Order.find({user: req.user?._id})
+        Order.find({user: userId})
           .populate("user", "_id username email mobileNumber image")
           .populate("product"),
         req.query
       );
-      const features2 = new APIFeatures(
-        Order.find({user: req.user?._id}),
-        req.query
-      );
+      const features2 = new APIFeatures(Order.find({user: userId}), req.query);
 
       const result = await Promise.allSettled([
         features.query,
@@ -178,6 +228,12 @@ const orderCtrl = {
       const orders = result[0].status === "fulfilled" ? result[0].value : [];
       const count =
         result[1].status === "fulfilled" ? result[1].value.length : 0;
+
+      await redisClient.setEx(
+        cacheKey,
+        CACHE_TTL,
+        JSON.stringify({orders, count})
+      );
 
       res.status(200).json({orders, count});
       return;

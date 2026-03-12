@@ -3,11 +3,28 @@ import slugify from "slugify";
 
 import Brand from "../models/brandModel";
 import Product from "../models/productModel";
+import redisClient from "../lib/redis";
+import {CACHE_KEYS} from "../lib/cacheKeys";
+
+const CACHE_TTL = 60 * 10;
 
 const brandCtrl = {
   getBrands: async (req: Request, res: Response) => {
     try {
+      const cachedBrands = await redisClient.get(CACHE_KEYS.BRANDS);
+
+      if (cachedBrands) {
+        res.json(JSON.parse(cachedBrands));
+        return;
+      }
+
       const brands = await Brand.find();
+
+      await redisClient.setEx(
+        CACHE_KEYS.BRANDS,
+        CACHE_TTL,
+        JSON.stringify(brands)
+      );
 
       res.json(brands);
       return;
@@ -39,6 +56,8 @@ const brandCtrl = {
       });
       await newBrand.save();
 
+      await redisClient.del(CACHE_KEYS.BRANDS);
+
       res.json({message: "Brand created successfully."});
       return;
     } catch (error: any) {
@@ -48,11 +67,22 @@ const brandCtrl = {
   },
   getBrand: async (req: Request, res: Response) => {
     try {
+      const cacheKey = CACHE_KEYS.BRAND(req.params.id);
+
+      const cachedBrand = await redisClient.get(cacheKey);
+
+      if (cachedBrand) {
+        res.json(JSON.parse(cachedBrand));
+        return;
+      }
+
       const brand = await Brand.findById(req.params.id);
       if (!brand) {
         res.status(404).json({message: "Brand not found."});
         return;
       }
+
+      await redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(brand));
 
       res.json(brand);
       return;
@@ -77,6 +107,9 @@ const brandCtrl = {
         return;
       }
 
+      await redisClient.del(CACHE_KEYS.BRANDS);
+      await redisClient.del(CACHE_KEYS.BRAND(req.params.id));
+
       res.json({message: "Brand updated successfully."});
       return;
     } catch (error: any) {
@@ -95,6 +128,10 @@ const brandCtrl = {
       }
 
       await Brand.findByIdAndDelete(req.params.id);
+
+      await redisClient.del(CACHE_KEYS.BRANDS);
+      await redisClient.del(CACHE_KEYS.BRAND(req.params.id));
+
       res.json({message: "Brand deleted successfully."});
       return;
     } catch (error: any) {

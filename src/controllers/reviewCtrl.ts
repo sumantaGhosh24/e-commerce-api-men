@@ -3,10 +3,24 @@ import {Request, Response} from "express";
 import Review from "../models/reviewModel";
 import {APIFeatures} from "../lib";
 import {IReqAuth} from "../types";
+import redisClient from "../lib/redis";
+import {CACHE_KEYS} from "../lib/cacheKeys";
+
+const CACHE_TTL = 60 * 10;
 
 const reviewCtrl = {
   getReviews: async (req: Request, res: Response) => {
     try {
+      const queryKey = JSON.stringify(req.query);
+      const cacheKey = CACHE_KEYS.REVIEWS(queryKey);
+
+      const cached = await redisClient.get(cacheKey);
+
+      if (cached) {
+        res.status(200).json(JSON.parse(cached));
+        return;
+      }
+
       const features = new APIFeatures(
         Review.find()
           .populate("product", "_id title description images")
@@ -30,6 +44,12 @@ const reviewCtrl = {
       const count =
         result[1].status === "fulfilled" ? result[1].value.length : 0;
 
+      await redisClient.setEx(
+        cacheKey,
+        CACHE_TTL,
+        JSON.stringify({reviews, count})
+      );
+
       res.status(200).json({reviews, count});
       return;
     } catch (error: any) {
@@ -39,6 +59,15 @@ const reviewCtrl = {
   },
   getProductReviews: async (req: Request, res: Response) => {
     try {
+      const cacheKey = CACHE_KEYS.PRODUCT_REVIEWS(req.params.product);
+
+      const cached = await redisClient.get(cacheKey);
+
+      if (cached) {
+        res.status(200).json(JSON.parse(cached));
+        return;
+      }
+
       const reviews = await Review.findById(req.params.product)
         .populate("product", "_id title description images")
         .populate("user", "_id username email mobileNumber image");
@@ -46,6 +75,8 @@ const reviewCtrl = {
         res.status(404).json({message: "Review not found."});
         return;
       }
+
+      await redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(reviews));
 
       res.status(200).json(reviews);
       return;
@@ -56,6 +87,15 @@ const reviewCtrl = {
   },
   getUserReviews: async (req: Request, res: Response) => {
     try {
+      const cacheKey = CACHE_KEYS.USER_REVIEWS(req.params.user);
+
+      const cached = await redisClient.get(cacheKey);
+
+      if (cached) {
+        res.status(200).json(JSON.parse(cached));
+        return;
+      }
+
       const reviews = await Review.find({user: req.params.user})
         .populate("product", "_id title description images")
         .populate("user", "_id username email mobileNumber image");
@@ -63,6 +103,8 @@ const reviewCtrl = {
         res.status(404).json({message: "Review not found."});
         return;
       }
+
+      await redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(reviews));
 
       res.status(200).json(reviews);
       return;
@@ -87,6 +129,11 @@ const reviewCtrl = {
         rating,
       });
       await newReview.save();
+
+      await redisClient.del(CACHE_KEYS.PRODUCT_REVIEWS(product));
+
+      const keys = await redisClient.keys("reviews:*");
+      if (keys.length) await redisClient.del(keys);
 
       res.json({message: "Review Created successfully."});
       return;

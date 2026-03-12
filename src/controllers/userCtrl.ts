@@ -7,6 +7,10 @@ import User from "../models/userModel";
 import {IReqAuth} from "../types";
 import {createAccessToken, createRefreshToken} from "../lib/utils";
 import {APIFeatures} from "../lib";
+import redisClient from "../lib/redis";
+import {CACHE_KEYS} from "../lib/cacheKeys";
+
+const CACHE_TTL = 60 * 10;
 
 const userCtrl = {
   register: async (req: Request, res: Response) => {
@@ -720,6 +724,16 @@ const userCtrl = {
   },
   getUsers: async (req: Request, res: Response) => {
     try {
+      const queryKey = JSON.stringify(req.query);
+      const cacheKey = CACHE_KEYS.USERS(queryKey);
+
+      const cached = await redisClient.get(cacheKey);
+
+      if (cached) {
+        res.status(200).json(JSON.parse(cached));
+        return;
+      }
+
       const features = new APIFeatures(User.find(), req.query)
         .paginating()
         .sorting()
@@ -737,6 +751,12 @@ const userCtrl = {
       const users = result[0].status === "fulfilled" ? result[0].value : [];
       const count =
         result[1].status === "fulfilled" ? result[1].value.length : 0;
+
+      await redisClient.setEx(
+        cacheKey,
+        CACHE_TTL,
+        JSON.stringify({users, count})
+      );
 
       res.status(200).json({users, count});
       return;

@@ -3,6 +3,10 @@ import slugify from "slugify";
 
 import Category, {ICategory} from "../models/categoryModel";
 import Product from "../models/productModel";
+import redisClient from "../lib/redis";
+import {CACHE_KEYS} from "../lib/cacheKeys";
+
+const CACHE_TTL = 60 * 10;
 
 function structureCategories(categories: ICategory[], parentId = null): any {
   const categoryList = [];
@@ -27,8 +31,22 @@ function structureCategories(categories: ICategory[], parentId = null): any {
 const categoryCtrl = {
   getCategories: async (req: Request, res: Response) => {
     try {
+      const cachedCategories = await redisClient.get(CACHE_KEYS.CATEGORIES);
+
+      if (cachedCategories) {
+        res.json(JSON.parse(cachedCategories));
+        return;
+      }
+
       const categories = await Category.find();
       const categoryList = structureCategories(categories);
+
+      await redisClient.setEx(
+        CACHE_KEYS.CATEGORIES,
+        CACHE_TTL,
+        JSON.stringify(categoryList)
+      );
+
       res.json(categoryList);
       return;
     } catch (error: any) {
@@ -60,6 +78,8 @@ const categoryCtrl = {
       });
       await newCategory.save();
 
+      await redisClient.del(CACHE_KEYS.CATEGORIES);
+
       res.json({message: "Category created successfully."});
       return;
     } catch (error: any) {
@@ -69,11 +89,22 @@ const categoryCtrl = {
   },
   getCategory: async (req: Request, res: Response) => {
     try {
+      const cacheKey = CACHE_KEYS.CATEGORY(req.params.id);
+
+      const cachedCategory = await redisClient.get(cacheKey);
+
+      if (cachedCategory) {
+        res.json(JSON.parse(cachedCategory));
+        return;
+      }
+
       const category = await Category.findById(req.params.id);
       if (!category) {
         res.status(400).json({message: "This category does not exists."});
         return;
       }
+
+      await redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(category));
 
       res.json(category);
       return;
@@ -101,6 +132,9 @@ const categoryCtrl = {
         return;
       }
 
+      await redisClient.del(CACHE_KEYS.CATEGORIES);
+      await redisClient.del(CACHE_KEYS.CATEGORY(req.params.id));
+
       res.json({message: "Category updated successfully."});
       return;
     } catch (error: any) {
@@ -127,6 +161,10 @@ const categoryCtrl = {
       }
 
       await Category.findByIdAndDelete(req.params.id);
+
+      await redisClient.del(CACHE_KEYS.CATEGORIES);
+      await redisClient.del(CACHE_KEYS.CATEGORY(req.params.id));
+
       res.json({message: "Category Deleted."});
       return;
     } catch (error: any) {

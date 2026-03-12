@@ -3,13 +3,28 @@ import {Response} from "express";
 import Cart from "../models/cartModel";
 import Product from "../models/productModel";
 import {IReqAuth} from "../types";
+import redisClient from "../lib/redis";
+import {CACHE_KEYS} from "../lib/cacheKeys";
+
+const CACHE_TTL = 60 * 10;
 
 const cartCtrl = {
   getCart: async (req: IReqAuth, res: Response) => {
     try {
-      const user = req.user?._id;
+      const user = req.user?._id as string;
+
+      const cacheKey = CACHE_KEYS.USER_CART(user);
+
+      const cachedCart = await redisClient.get(cacheKey);
+
+      if (cachedCart) {
+        res.status(200).json(JSON.parse(cachedCart));
+        return;
+      }
 
       const cart = await Cart.findOne({user}).populate("products.product");
+
+      await redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(cart));
 
       res.status(200).json(cart);
       return;
@@ -20,7 +35,7 @@ const cartCtrl = {
   },
   addCart: async (req: IReqAuth, res: Response) => {
     try {
-      const user = req.user?._id;
+      const user = req.user?._id as string;
       const {productId, quantity} = req.body;
 
       let cart = await Cart.findOne({user});
@@ -89,6 +104,9 @@ const cartCtrl = {
           ],
         });
       }
+
+      await redisClient.del(CACHE_KEYS.USER_CART(user));
+
       res.json({message: "Product added to cart."});
       return;
     } catch (error: any) {
@@ -98,7 +116,7 @@ const cartCtrl = {
   },
   removeCart: async (req: IReqAuth, res: Response) => {
     try {
-      const user = req.user?._id;
+      const user = req.user?._id as string;
       const {productId} = req.body;
 
       let cart = await Cart.findOne({user});
@@ -117,6 +135,8 @@ const cartCtrl = {
 
       cart = await cart.save();
 
+      await redisClient.del(CACHE_KEYS.USER_CART(user));
+
       res.json({message: "Product removed from cart."});
       return;
     } catch (error: any) {
@@ -126,9 +146,12 @@ const cartCtrl = {
   },
   clearCart: async (req: IReqAuth, res: Response) => {
     try {
-      const user = req.user?._id;
+      const user = req.user?._id as string;
 
       await Cart.findOneAndDelete({user});
+
+      await redisClient.del(CACHE_KEYS.USER_CART(user));
+
       res.json({message: "Cart cleared."});
       return;
     } catch (error: any) {
