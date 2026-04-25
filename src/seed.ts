@@ -1,14 +1,14 @@
 import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
-import {faker} from "@faker-js/faker";
+import { faker } from "@faker-js/faker";
 
-import User from "./models/userModel";
-import Category from "./models/categoryModel";
-import Brand from "./models/brandModel";
-import Product from "./models/productModel";
-import Review from "./models/reviewModel";
-import Order from "./models/orderModel";
-import connectDB from "./lib/connectDB";
+import User from "./models/user.model";
+import Category from "./models/category.model";
+import Brand from "./models/brand.model";
+import Product from "./models/product.model";
+import Review from "./models/review.model";
+import Order from "./models/order.model";
+import connectDB from "./config/connectDB";
 
 dotenv.config();
 
@@ -21,19 +21,22 @@ const seedDB = async () => {
     console.log("Creating admin...");
     const admin = new User({
       email: faker.internet
-        .email({firstName: "test", lastName: "admin"})
+        .email({ firstName: "test", lastName: "admin" })
         .toLowerCase(),
-      mobileNumber: faker.phone.number({style: "international"}),
+      mobileNumber: faker.phone.number({ style: "international" }),
       password: await bcrypt.hash("test@admin", 10),
       firstName: "test",
       lastName: "admin",
-      username: faker.internet.username({firstName: "test", lastName: "admin"}),
+      username: faker.internet.username({
+        firstName: "test",
+        lastName: "admin",
+      }),
       image: {
         public_id: "accommodation-booking/tmp-1-1753507651178_azu5rk",
         url: "https://res.cloudinary.com/dzqgzsnoc/image/upload/v1753507657/accommodation-booking/tmp-1-1753507651178_azu5rk.jpg",
       },
       dob: faker.date
-        .past({years: 30, refDate: "2000-01-01"})
+        .past({ years: 30, refDate: "2000-01-01" })
         .toISOString()
         .split("T")[0],
       gender: faker.person.gender(),
@@ -54,18 +57,18 @@ const seedDB = async () => {
       const firstName = faker.person.firstName().toLowerCase();
       const lastName = faker.person.lastName().toLowerCase();
       const user = new User({
-        email: faker.internet.email({firstName, lastName}).toLowerCase(),
-        mobileNumber: faker.phone.number({style: "international"}),
+        email: faker.internet.email({ firstName, lastName }).toLowerCase(),
+        mobileNumber: faker.phone.number({ style: "international" }),
         password: await bcrypt.hash(firstName, 10),
-        firstName: firstName,
-        lastName: lastName,
-        username: faker.internet.username({firstName, lastName}),
+        firstName,
+        lastName,
+        username: faker.internet.username({ firstName, lastName }),
         image: {
           public_id: "accommodation-booking/tmp-1-1753507651178_azu5rk",
           url: "https://res.cloudinary.com/dzqgzsnoc/image/upload/v1753507657/accommodation-booking/tmp-1-1753507651178_azu5rk.jpg",
         },
         dob: faker.date
-          .past({years: 30, refDate: "2000-01-01"})
+          .past({ years: 30, refDate: "2000-01-01" })
           .toISOString()
           .split("T")[0],
         gender: faker.person.gender(),
@@ -96,9 +99,9 @@ const seedDB = async () => {
     ];
     for (let i = 0; i < 10; i++) {
       const name =
-        categoryNames[i] || faker.lorem.word({length: {min: 5, max: 10}});
+        categoryNames[i] || faker.lorem.word({ length: { min: 5, max: 10 } });
       const category = new Category({
-        name: name,
+        name,
         slug: faker.helpers.slugify(name),
         image: {
           public_id: "accommodation-booking/tmp-1-1753507651178_azu5rk",
@@ -114,9 +117,9 @@ const seedDB = async () => {
     const brandNames = ["LG", "Samsung", "Logitech", "Techno", "Vivo", "Nokia"];
     for (let i = 0; i < 10; i++) {
       const name =
-        brandNames[i] || faker.lorem.word({length: {min: 5, max: 10}});
+        brandNames[i] || faker.lorem.word({ length: { min: 5, max: 10 } });
       const brand = new Brand({
-        name: name,
+        name,
         slug: faker.helpers.slugify(name),
         image: {
           public_id: "accommodation-booking/tmp-1-1753507651178_azu5rk",
@@ -135,20 +138,20 @@ const seedDB = async () => {
       const product = new Product({
         owner: admin._id,
         title: faker.commerce.productName(),
-        images: Array.from({length: faker.number.int({min: 1, max: 5})}).map(
-          () => ({
-            public_id: "accommodation-booking/tmp-1-1753507651178_azu5rk",
-            url: "https://res.cloudinary.com/dzqgzsnoc/image/upload/v1753507657/accommodation-booking/tmp-1-1753507651178_azu5rk.jpg",
-          })
-        ),
+        images: Array.from({
+          length: faker.number.int({ min: 1, max: 5 }),
+        }).map(() => ({
+          public_id: "accommodation-booking/tmp-1-1753507651178_azu5rk",
+          url: "https://res.cloudinary.com/dzqgzsnoc/image/upload/v1753507657/accommodation-booking/tmp-1-1753507651178_azu5rk.jpg",
+        })),
         description: faker.commerce.productDescription(),
         content: faker.lorem.paragraphs(3),
         category: randomCategory._id,
         brand: randomBrand._id,
         price: faker.commerce.price(),
         checked: true,
-        stock: faker.number.int({min: 5, max: 100}),
-        sold: faker.number.int({min: 5, max: 100}),
+        stock: faker.number.int({ min: 5, max: 100 }),
+        sold: faker.number.int({ min: 5, max: 100 }),
       });
       products.push(await product.save());
     }
@@ -163,7 +166,7 @@ const seedDB = async () => {
         product: randomProduct._id,
         user: randomUser._id,
         comment: faker.lorem.sentence(),
-        rating: faker.number.int({min: 1, max: 5}),
+        rating: faker.number.int({ min: 1, max: 5 }),
       });
       reviews.push(await review.save());
     }
@@ -174,23 +177,23 @@ const seedDB = async () => {
     for (let i = 0; i < 150; i++) {
       const randomUser = faker.helpers.arrayElement(users);
 
-      const numberOfProductsInOrder = faker.number.int({min: 1, max: 3});
+      const numberOfProductsInOrder = faker.number.int({ min: 1, max: 3 });
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const selectedProductsForOrder: any[] = faker.helpers.arrayElements(
         products,
         numberOfProductsInOrder
       );
 
-      const orderItems = selectedProductsForOrder.map((product) => ({
+      const orderItems = selectedProductsForOrder.map(product => ({
         product: product._id,
-        quantity: faker.number.int({min: 1, max: 5}),
+        quantity: faker.number.int({ min: 1, max: 5 }),
       }));
 
       const price = orderItems.reduce(
         (acc, item) =>
           acc +
-          selectedProductsForOrder.find((p) => p._id.equals(item.product))
-            .price *
+          selectedProductsForOrder.find(p => p._id.equals(item.product)).price *
             item.quantity,
         0
       );
@@ -201,12 +204,12 @@ const seedDB = async () => {
 
       const isDelivered = faker.datatype.boolean();
       const deliveredAt = isDelivered
-        ? faker.date.recent({days: 30})
+        ? faker.date.recent({ days: 30 })
         : undefined;
 
       const order = new Order({
         user: randomUser._id,
-        orderItems: orderItems,
+        orderItems,
         shippingAddress: {
           address: faker.location.streetAddress(),
           city: faker.location.city(),
@@ -221,10 +224,10 @@ const seedDB = async () => {
           razorpay_payment_id: faker.string.uuid(),
           razorpay_signature: faker.string.alphanumeric(32),
         },
-        price: price,
-        taxPrice: taxPrice,
-        shippingPrice: shippingPrice,
-        totalPrice: totalPrice,
+        price,
+        taxPrice,
+        shippingPrice,
+        totalPrice,
         isDeliverd: isDelivered,
         deliverAt: deliveredAt,
         status: faker.helpers.arrayElement([
