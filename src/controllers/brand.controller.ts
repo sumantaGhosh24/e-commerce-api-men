@@ -17,6 +17,8 @@ import { formatValidationError } from "../utils/format";
 
 export const getBrands = async (req: Request, res: Response) => {
   try {
+    logger.info("Started fetching brands");
+
     const brands = await getBrandsService();
 
     logger.info("Successfully fetched brands");
@@ -33,6 +35,8 @@ export const getBrands = async (req: Request, res: Response) => {
 
 export const createBrand = async (req: Request, res: Response) => {
   try {
+    logger.info("Started creating brand");
+
     const validationResult = createBrandSchema.safeParse(req.body);
 
     if (!validationResult.success) {
@@ -61,6 +65,8 @@ export const createBrand = async (req: Request, res: Response) => {
 
 export const getBrand = async (req: Request, res: Response) => {
   try {
+    logger.info(`Started fetching brand ${req.params.id}`);
+
     const validationResult = brandIdSchema.safeParse({ id: req.params.id });
 
     if (!validationResult.success) {
@@ -89,6 +95,8 @@ export const getBrand = async (req: Request, res: Response) => {
 
 export const updateBrand = async (req: Request, res: Response) => {
   try {
+    logger.info(`Started updating brand ${req.params.id}`);
+
     const validationParams = brandIdSchema.safeParse({ id: req.params.id });
 
     if (!validationParams.success) {
@@ -129,6 +137,8 @@ export const updateBrand = async (req: Request, res: Response) => {
 
 export const deleteBrand = async (req: Request, res: Response) => {
   try {
+    logger.info(`Started deleting brand ${req.params.id}`);
+
     const validationResult = brandIdSchema.safeParse({ id: req.params.id });
 
     if (!validationResult.success) {

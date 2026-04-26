@@ -9,6 +9,8 @@ import logger from "../config/logger";
 
 export const getAdminDashboard = async (req: Request, res: Response) => {
   try {
+    logger.info("Started fetching admin dashboard");
+
     const {
       totalUsers,
       activeUsers,
@@ -52,6 +54,8 @@ export const getAdminDashboard = async (req: Request, res: Response) => {
 export const getDashboard = async (req: IReqAuth, res: Response) => {
   try {
     const userId = req.user?._id as string;
+
+    logger.info(`Started fetching dashboard of user ${userId}`);
 
     const { user, userOrders, userReviews, totalOrders, totalOrderPrice } =
       await getUserDashboardService(userId);

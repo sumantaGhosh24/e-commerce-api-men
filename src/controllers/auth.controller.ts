@@ -24,6 +24,8 @@ import logger from "../config/logger";
 
 export const register = async (req: Request, res: Response) => {
   try {
+    logger.info("Started registering user");
+
     const validationResult = registerSchema.safeParse(req.body);
 
     if (!validationResult.success) {
@@ -57,6 +59,8 @@ export const register = async (req: Request, res: Response) => {
 
 export const registerVerify = async (req: Request, res: Response) => {
   try {
+    logger.info("Started verifying register");
+
     const token = req.query.token;
     if (!token) {
       res.status(400).json({
@@ -87,6 +91,8 @@ export const registerVerify = async (req: Request, res: Response) => {
 
 export const login = async (req: Request, res: Response) => {
   try {
+    logger.info("Started login user");
+
     const validationResult = loginSchema.safeParse(req.body);
 
     if (!validationResult.success) {
@@ -128,6 +134,8 @@ export const login = async (req: Request, res: Response) => {
 
 export const loginVerify = async (req: Request, res: Response) => {
   try {
+    logger.info("Started verifying login");
+
     const check = req.cookies.check;
     if (!check) {
       res.status(400).json({ message: "First login to access this page." });
@@ -161,6 +169,8 @@ export const loginVerify = async (req: Request, res: Response) => {
 
 export const refresh_token = async (req: Request, res: Response) => {
   try {
+    logger.info("Started refreshing token");
+
     const rf_token = req.cookies.refreshtoken;
     if (!rf_token) {
       res.status(400).json({ message: "Please login or register first." });
@@ -182,6 +192,8 @@ export const refresh_token = async (req: Request, res: Response) => {
 
 export const logout = (req: Request, res: Response) => {
   try {
+    logger.info("Started logging out");
+
     res.clearCookie("refreshtoken", { path: "/api/v1/refresh_token" });
 
     logger.info("User logged out");
@@ -197,6 +209,8 @@ export const logout = (req: Request, res: Response) => {
 
 export const forgotPassword = async (req: Request, res: Response) => {
   try {
+    logger.info("Started forgot password");
+
     const validationResult = forgotPasswordSchema.safeParse(req.body);
 
     if (!validationResult.success) {
@@ -231,6 +245,8 @@ export const validateConfirmForgotPassword = async (
   res: Response
 ) => {
   try {
+    logger.info("Started validating forgot password");
+
     const token = req.query.token as string;
     if (!token) {
       res
@@ -260,6 +276,8 @@ export const validateConfirmForgotPassword = async (
 
 export const confirmForgotPassword = async (req: Request, res: Response) => {
   try {
+    logger.info("Started confirming forgot password");
+
     const validationResult = confirmForgotPasswordSchema.safeParse(req.body);
 
     if (!validationResult.success) {

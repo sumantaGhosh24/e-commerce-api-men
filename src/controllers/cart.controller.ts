@@ -16,6 +16,8 @@ import logger from "../config/logger";
 
 export const getCart = async (req: IReqAuth, res: Response) => {
   try {
+    logger.info("Started fetching cart");
+
     const user = req.user?._id as string;
 
     const cart = await getCartService(user);
@@ -34,6 +36,8 @@ export const getCart = async (req: IReqAuth, res: Response) => {
 
 export const addCart = async (req: IReqAuth, res: Response) => {
   try {
+    logger.info("Started adding product to cart");
+
     const user = req.user?._id as string;
 
     const validationResult = addCartSchema.safeParse(req.body);
@@ -64,6 +68,8 @@ export const addCart = async (req: IReqAuth, res: Response) => {
 
 export const removeCart = async (req: IReqAuth, res: Response) => {
   try {
+    logger.info("Started removing product from cart");
+
     const validationResult = removeCartSchema.safeParse(req.body);
 
     if (!validationResult.success) {
@@ -94,6 +100,8 @@ export const removeCart = async (req: IReqAuth, res: Response) => {
 
 export const clearCart = async (req: IReqAuth, res: Response) => {
   try {
+    logger.info("Started clearing cart");
+
     const user = req.user?._id as string;
 
     await clearCartService(user);

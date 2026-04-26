@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 
 import User from "../models/user.model";
 import { IReqAuth } from "../types";
+import logger from "../config/logger";
 
 const auth = (req: IReqAuth, res: Response, next: NextFunction) => {
   try {
@@ -27,10 +28,15 @@ const auth = (req: IReqAuth, res: Response, next: NextFunction) => {
         const user = await User.findById(decoded.id).select("-password");
         if (!user) return;
         req.user = user;
+
+        logger.info(`User authenticated: ${user.email}`);
+
         next();
       }
     );
   } catch (error: unknown) {
+    logger.error("Error to authenticate user", error);
+
     res.status(500).json({
       message: error instanceof Error ? error.message : String(error),
     });

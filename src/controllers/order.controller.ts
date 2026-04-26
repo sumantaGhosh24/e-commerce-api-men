@@ -19,6 +19,8 @@ import logger from "../config/logger";
 
 export const getRazorpay = async (req: Request, res: Response) => {
   try {
+    logger.info("Started fetching razorpay order");
+
     const order = await getRazorpayService(req.body.amount);
 
     logger.info("Successfully fetched razorpay order");
@@ -35,6 +37,8 @@ export const getRazorpay = async (req: Request, res: Response) => {
 
 export const verification = async (req: IReqAuth, res: Response) => {
   try {
+    logger.info("Started verifying order");
+
     const validationResult = orderVerificationSchema.safeParse(req.body);
 
     if (!validationResult.success) {
@@ -94,6 +98,8 @@ export const verification = async (req: IReqAuth, res: Response) => {
 
 export const getOrders = async (req: Request, res: Response) => {
   try {
+    logger.info("Started fetching orders");
+
     const { orders, count } = await getOrdersService(req.query);
 
     logger.info("Successfully fetched orders");
@@ -110,6 +116,8 @@ export const getOrders = async (req: Request, res: Response) => {
 
 export const getOrder = async (req: Request, res: Response) => {
   try {
+    logger.info(`Started fetching order ${req.params.id}`);
+
     const validationResult = orderIdSchema.safeParse({ id: req.params.id });
 
     if (!validationResult.success) {
@@ -138,6 +146,8 @@ export const getOrder = async (req: Request, res: Response) => {
 
 export const updateOrder = async (req: Request, res: Response) => {
   try {
+    logger.info(`Started updating order ${req.params.id}`);
+
     const validationParams = orderIdSchema.safeParse({ id: req.params.id });
 
     if (!validationParams.success) {
@@ -182,6 +192,8 @@ export const updateOrder = async (req: Request, res: Response) => {
 
 export const getUserOrders = async (req: IReqAuth, res: Response) => {
   try {
+    logger.info("Started fetching user orders");
+
     const userId = req.user?._id as string;
 
     const { orders, count } = await getUserOrdersService(userId, req.query);

@@ -21,6 +21,8 @@ import logger from "../config/logger";
 
 export const userImage = async (req: IReqAuth, res: Response) => {
   try {
+    logger.info(`User ${req?.user?._id} image started uploading`);
+
     const validationResult = userImageSchema.safeParse(req.body);
 
     if (!validationResult.success) {
@@ -49,6 +51,8 @@ export const userImage = async (req: IReqAuth, res: Response) => {
 
 export const userData = async (req: IReqAuth, res: Response) => {
   try {
+    logger.info(`User ${req?.user?._id} data started updating`);
+
     const validationResult = userDataSchema.safeParse(req.body);
 
     if (!validationResult.success) {
@@ -84,6 +88,8 @@ export const userData = async (req: IReqAuth, res: Response) => {
 
 export const userAddress = async (req: IReqAuth, res: Response) => {
   try {
+    logger.info(`User ${req?.user?._id} address started updating`);
+
     const validationResult = userAddressSchema.safeParse(req.body);
 
     if (!validationResult.success) {
@@ -118,6 +124,8 @@ export const userAddress = async (req: IReqAuth, res: Response) => {
 
 export const resetPassword = async (req: IReqAuth, res: Response) => {
   try {
+    logger.info(`User ${req?.user?._id} password started resetting`);
+
     const validationResult = resetPasswordSchema.safeParse(req.body);
 
     if (!validationResult.success) {
@@ -150,6 +158,8 @@ export const resetPassword = async (req: IReqAuth, res: Response) => {
 
 export const deleteUser = async (req: Request, res: Response) => {
   try {
+    logger.info(`User ${req.params.id} started deleting`);
+
     const validationParams = userIdSchema.safeParse({ id: req.params.id });
 
     if (!validationParams.success) {
@@ -178,6 +188,8 @@ export const deleteUser = async (req: Request, res: Response) => {
 
 export const getUsers = async (req: Request, res: Response) => {
   try {
+    logger.info("Started fetching users");
+
     const { users, count } = await getUsersService(req.query);
 
     logger.info("Successfully fetched users");

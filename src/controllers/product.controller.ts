@@ -22,6 +22,8 @@ import logger from "../config/logger";
 
 export const getProducts = async (req: IReqAuth, res: Response) => {
   try {
+    logger.info("Started fetching products");
+
     const { products, count } = await getProductsService(req.query);
 
     logger.info("Successfully fetched products");
@@ -38,6 +40,8 @@ export const getProducts = async (req: IReqAuth, res: Response) => {
 
 export const getProduct = async (req: IReqAuth, res: Response) => {
   try {
+    logger.info(`Started fetching product ${req.params.id}`);
+
     const validationResult = productIdSchema.safeParse({ id: req.params.id });
 
     if (!validationResult.success) {
@@ -66,6 +70,8 @@ export const getProduct = async (req: IReqAuth, res: Response) => {
 
 export const createProduct = async (req: IReqAuth, res: Response) => {
   try {
+    logger.info("Started creating product");
+
     const validationResult = createProductSchema.safeParse(req.body);
 
     if (!validationResult.success) {
@@ -121,6 +127,8 @@ export const createProduct = async (req: IReqAuth, res: Response) => {
 
 export const updateProduct = async (req: Request, res: Response) => {
   try {
+    logger.info(`Started updating product ${req.params.id}`);
+
     const validationParams = productIdSchema.safeParse({ id: req.params.id });
 
     if (!validationParams.success) {
@@ -181,6 +189,8 @@ export const updateProduct = async (req: Request, res: Response) => {
 
 export const addImages = async (req: Request, res: Response) => {
   try {
+    logger.info(`Started adding images to product ${req.params.id}`);
+
     const validationParams = productIdSchema.safeParse({ id: req.params.id });
 
     if (!validationParams.success) {
@@ -221,6 +231,8 @@ export const addImages = async (req: Request, res: Response) => {
 
 export const removeImages = async (req: Request, res: Response) => {
   try {
+    logger.info(`Started removing images from product ${req.params.id}`);
+
     const validationParams = productIdSchema.safeParse({ id: req.params.id });
 
     if (!validationParams.success) {
@@ -261,6 +273,8 @@ export const removeImages = async (req: Request, res: Response) => {
 
 export const deleteProduct = async (req: Request, res: Response) => {
   try {
+    logger.info(`Started deleting product ${req.params.id}`);
+
     const validationParams = productIdSchema.safeParse({ id: req.params.id });
 
     if (!validationParams.success) {

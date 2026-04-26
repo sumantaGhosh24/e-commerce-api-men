@@ -17,6 +17,7 @@ import cartRoutes from "./routes/cart.routes";
 import reviewRoutes from "./routes/review.routes";
 import orderRoutes from "./routes/order.routes";
 import dashboardRoutes from "./routes/dashboard.routes";
+import securityMiddleware from "./middleware/security.middleware";
 
 const app = express();
 
@@ -34,6 +35,8 @@ app.use(
     })
   )
 );
+
+app.use(securityMiddleware);
 
 app.get("/", (req, res) => {
   logger.info("API Working!");

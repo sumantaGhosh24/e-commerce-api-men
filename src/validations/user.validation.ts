@@ -13,11 +13,9 @@ export const userDataSchema = z.object({
   firstName: z.string().min(1).max(255).trim(),
   lastName: z.string().min(1).max(255).trim(),
   username: z.string().min(1).max(255).trim(),
-  dob: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, {
-      message: "Date of birth must be in YYYY-MM-DD format",
-    }),
+  dob: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, {
+    message: "Date of birth must be in YYYY-MM-DD format",
+  }),
   gender: z.enum(["male", "female", "other"]),
 });
 

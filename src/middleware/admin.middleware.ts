@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 
 import User from "../models/user.model";
 import { IReqAuth } from "../types";
+import logger from "../config/logger";
 
 const authAdmin = (req: IReqAuth, res: Response, next: NextFunction) => {
   try {
@@ -28,6 +29,8 @@ const authAdmin = (req: IReqAuth, res: Response, next: NextFunction) => {
         if (!user) return;
         req.user = user;
         if (user.role === "admin") {
+          logger.info(`Admin authenticated: ${user.email}`);
+
           next();
         } else {
           res
@@ -37,6 +40,8 @@ const authAdmin = (req: IReqAuth, res: Response, next: NextFunction) => {
       }
     );
   } catch (error: unknown) {
+    logger.error("Error to authenticate admin", error);
+
     res.status(500).json({
       message: error instanceof Error ? error.message : String(error),
     });

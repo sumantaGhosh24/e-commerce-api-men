@@ -17,6 +17,8 @@ import logger from "../config/logger";
 
 export const getCategories = async (req: Request, res: Response) => {
   try {
+    logger.info("Started fetching categories");
+
     const categories = await getCategoriesService();
 
     logger.info("Successfully fetched categories");
@@ -33,6 +35,8 @@ export const getCategories = async (req: Request, res: Response) => {
 
 export const createCategory = async (req: Request, res: Response) => {
   try {
+    logger.info(`Category ${req.body.name} started creating`);
+
     const validationResult = createCategorySchema.safeParse(req.body);
 
     if (!validationResult.success) {
@@ -61,6 +65,8 @@ export const createCategory = async (req: Request, res: Response) => {
 
 export const getCategory = async (req: Request, res: Response) => {
   try {
+    logger.info(`Category ${req.params.id} started fetching`);
+
     const validationResult = categoryIdSchema.safeParse({ id: req.params.id });
 
     if (!validationResult.success) {
@@ -89,6 +95,8 @@ export const getCategory = async (req: Request, res: Response) => {
 
 export const updateCategory = async (req: Request, res: Response) => {
   try {
+    logger.info(`Category ${req.params.id} started updating`);
+
     const validationParams = categoryIdSchema.safeParse({ id: req.params.id });
 
     if (!validationParams.success) {
@@ -133,6 +141,8 @@ export const updateCategory = async (req: Request, res: Response) => {
 
 export const deleteCategory = async (req: Request, res: Response) => {
   try {
+    logger.info(`Category ${req.params.id} started deleting`);
+
     const validationParams = categoryIdSchema.safeParse({ id: req.params.id });
 
     if (!validationParams.success) {

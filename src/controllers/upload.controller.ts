@@ -21,6 +21,8 @@ cloudinary.v2.config({
 
 export const uploadImage = async (req: Request, res: Response) => {
   try {
+    logger.info("Started uploading image");
+
     const image = await uploadImageService(req);
 
     logger.info(`Image ${image.public_id} uploaded successfully`);
@@ -37,6 +39,8 @@ export const uploadImage = async (req: Request, res: Response) => {
 
 export const uploadImages = async (req: Request, res: Response) => {
   try {
+    logger.info("Started uploading images");
+
     const images = await uploadImagesService(req);
 
     logger.info("Images uploaded successfully");
@@ -53,6 +57,8 @@ export const uploadImages = async (req: Request, res: Response) => {
 
 export const deleteImage = async (req: Request, res: Response) => {
   try {
+    logger.info(`Image ${req.body.public_id} started deleting`);
+
     const validationResult = deleteImageSchema.safeParse(req.body);
 
     if (!validationResult.success) {

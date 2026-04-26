@@ -17,6 +17,8 @@ import logger from "../config/logger";
 
 export const getReviews = async (req: Request, res: Response) => {
   try {
+    logger.info("Started fetching reviews");
+
     const { reviews, count } = await getReviewsService(req.query);
 
     logger.info("Successfully fetched reviews");
@@ -33,6 +35,8 @@ export const getReviews = async (req: Request, res: Response) => {
 
 export const getProductReviews = async (req: Request, res: Response) => {
   try {
+    logger.info(`Started fetching reviews of product ${req.params.product}`);
+
     const validationParams = reviewProductSchema.safeParse({
       product: req.params.product,
     });
@@ -63,6 +67,8 @@ export const getProductReviews = async (req: Request, res: Response) => {
 
 export const getUserReviews = async (req: Request, res: Response) => {
   try {
+    logger.info(`Started fetching reviews of user ${req.params.user}`);
+
     const validationParams = reviewUserSchema.safeParse({
       user: req.params.user,
     });
@@ -93,6 +99,8 @@ export const getUserReviews = async (req: Request, res: Response) => {
 
 export const createReview = async (req: IReqAuth, res: Response) => {
   try {
+    logger.info(`Started creating review of product ${req.body.product}`);
+
     const validationResult = createReviewSchema.safeParse(req.body);
 
     if (!validationResult.success) {
