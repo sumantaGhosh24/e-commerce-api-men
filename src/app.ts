@@ -29,11 +29,9 @@ app.use(cookieParser());
 app.use(fileUpload({ useTempFiles: true }));
 
 app.use(
-  app.use(
-    morgan("combined", {
-      stream: { write: message => logger.info(message.trim()) },
-    })
-  )
+  morgan("combined", {
+    stream: { write: message => logger.info(message.trim()) },
+  })
 );
 
 app.use(securityMiddleware);
@@ -56,20 +54,19 @@ app.get("/api", (req, res) => {
   res.status(200).json({ message: "E-Commerce Website API is working!" });
 });
 
-app.use((req, res) => {
-  res.status(404).json({ error: "Route not found!" });
-});
-
 app.use("/api", authRoutes);
 app.use("/api", userRoutes);
 app.use("/api", uploadRoutes);
 app.use("/api", categoryRoutes);
 app.use("/api", brandRoutes);
 app.use("/api", productRoutes);
-app.use("/api", productRoutes);
 app.use("/api", reviewRoutes);
 app.use("/api", cartRoutes);
 app.use("/api", orderRoutes);
 app.use("/api", dashboardRoutes);
+
+app.use((req, res) => {
+  res.status(404).json({ error: "Route not found!" });
+});
 
 export default app;

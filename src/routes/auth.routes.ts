@@ -11,7 +11,6 @@ import {
   validateConfirmForgotPassword,
   confirmForgotPassword,
 } from "../controllers/auth.controller";
-import loginLimiter from "../middleware/limiter.middleware";
 
 const router = express.Router();
 
@@ -19,7 +18,7 @@ router.post("/register", register);
 
 router.get("/register-verify", registerVerify);
 
-router.post("/login", loginLimiter, login);
+router.post("/login", login);
 
 router.post("/login-verify", loginVerify);
 

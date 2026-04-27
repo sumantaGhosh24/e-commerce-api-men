@@ -3,10 +3,10 @@ import { z } from "zod";
 export const orderIdSchema = z.object({ id: z.string().min(1) });
 
 export const orderVerificationSchema = z.object({
-  orderCreationId: z.string().min(1, "orderCreationId is required"),
-  razorpayPaymentId: z.string().min(1, "razorpayPaymentId is required"),
-  razorpayOrderId: z.string().min(1, "razorpayOrderId is required"),
-  razorpaySignature: z.string().min(1, "razorpaySignature is required"),
+  orderCreationId: z.string().min(1, "Order creation id is required"),
+  razorpayPaymentId: z.string().min(1, "Razorpay payment id is required"),
+  razorpayOrderId: z.string().min(1, "Razorpay order id is required"),
+  razorpaySignature: z.string().min(1, "Razorpay signature is required"),
   orderItems: z
     .array(
       z.object({

@@ -115,38 +115,33 @@ type VerifyResponse = {
 };
 
 export const registerVerifyService = async (token: string) => {
-  try {
-    return new Promise<VerifyResponse>((resolve, reject) => {
-      jwt.verify(
-        token as string,
-        process.env.ACCESS_TOKEN_SECRET!,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        async (err: unknown, user: any) => {
-          if (err) {
-            reject("Something wrong with your link, click your link again.");
-            return;
-          }
-
-          const us = await User.findById(user.id).select("-password");
-          if (!us) {
-            reject("Something wrong with your link, click your link again.");
-            return;
-          }
-
-          await User.findByIdAndUpdate(us._id, { status: "active" });
-
-          const accesstoken = createAccessToken({ id: us._id });
-          const refreshtoken = createRefreshToken({ id: us._id });
-
-          resolve({ accesstoken, refreshtoken, user: us });
+  return new Promise<VerifyResponse>((resolve, reject) => {
+    jwt.verify(
+      token as string,
+      process.env.ACCESS_TOKEN_SECRET!,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      async (err: unknown, user: any) => {
+        if (err) {
+          console.log(err);
+          reject("Something wrong with your link, click your link again.");
+          return;
         }
-      );
-    });
-  } catch (error) {
-    logger.error("Error verify register", error);
 
-    throw error;
-  }
+        const us = await User.findById(user.id).select("-password");
+        if (!us) {
+          reject("Something wrong with your link, click your link again.");
+          return;
+        }
+
+        await User.findByIdAndUpdate(us._id, { status: "active" });
+
+        const accesstoken = createAccessToken({ id: us._id });
+        const refreshtoken = createRefreshToken({ id: us._id });
+
+        resolve({ accesstoken, refreshtoken, user: us });
+      }
+    );
+  });
 };
 
 export const loginService = async (email: string, password: string) => {
@@ -232,81 +227,69 @@ export const sendLoginOtpEmailService = async (user: IUser, otp: number) => {
 };
 
 export const loginVerifyService = async (token: string, otp: number) => {
-  try {
-    return new Promise<VerifyResponse>((resolve, reject) => {
+  return new Promise<VerifyResponse>((resolve, reject) => {
+    jwt.verify(
+      token,
+      process.env.ACCESS_TOKEN_SECRET!,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      async (err: unknown, user: any) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+
+        if (user.num == otp) {
+          const us = await User.findById(user.id);
+          if (!us) {
+            reject(
+              new Error(
+                "Something wrong with your link, click your link again."
+              )
+            );
+            return;
+          }
+
+          const accesstoken = createAccessToken({ id: us._id });
+          const refreshtoken = createRefreshToken({ id: us._id });
+
+          resolve({ accesstoken, refreshtoken, user: us });
+        } else {
+          reject(new Error("Invalid otp, please check your email again."));
+        }
+      }
+    );
+  });
+};
+
+export const refreshTokenService = async (token: string) => {
+  return new Promise<Omit<VerifyResponse, "refreshtoken">>(
+    (resolve, reject) => {
       jwt.verify(
         token,
-        process.env.ACCESS_TOKEN_SECRET!,
+        process.env.REFRESH_TOKEN_SECRET!,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         async (err: unknown, user: any) => {
           if (err) {
             reject(err);
             return;
           }
-
-          if (user.num == otp) {
-            const us = await User.findById(user.id);
-            if (!us) {
-              reject(
-                new Error(
-                  "Something wrong with your link, click your link again."
-                )
-              );
-              return;
-            }
-
-            const accesstoken = createAccessToken({ id: us._id });
-            const refreshtoken = createRefreshToken({ id: us._id });
-
-            resolve({ accesstoken, refreshtoken, user: us });
-          } else {
-            reject(new Error("Invalid otp, please check your email again."));
+          const us = await User.findById(user?.id);
+          if (!us) {
+            reject(
+              new Error(
+                "Something wrong with your link, click your link again."
+              )
+            );
+            return;
           }
+
+          const accesstoken = createAccessToken({ id: us._id });
+
+          resolve({ accesstoken, user: us });
         }
       );
-    });
-  } catch (error) {
-    logger.error("Error verify login", error);
-
-    throw error;
-  }
-};
-
-export const refreshTokenService = async (token: string) => {
-  try {
-    return new Promise<Omit<VerifyResponse, "refreshtoken">>(
-      (resolve, reject) => {
-        jwt.verify(
-          token,
-          process.env.REFRESH_TOKEN_SECRET!,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          async (err: unknown, user: any) => {
-            if (err) {
-              reject(err);
-              return;
-            }
-            const us = await User.findById(user?.id);
-            if (!us) {
-              reject(
-                new Error(
-                  "Something wrong with your link, click your link again."
-                )
-              );
-              return;
-            }
-
-            const accesstoken = createAccessToken({ id: us._id });
-
-            resolve({ accesstoken, user: us });
-          }
-        );
-      }
-    );
-  } catch (error) {
-    logger.error("Error to generate refresh token", error);
-
-    throw error;
-  }
+    }
+  );
 };
 
 export const forgotPasswordService = async (email: string) => {
@@ -374,25 +357,19 @@ export const forgotPasswordService = async (email: string) => {
 };
 
 export const validateConfirmForgotPasswordService = async (token: string) => {
-  try {
-    return new Promise<boolean>((resolve, reject) => {
-      jwt.verify(
-        token,
-        process.env.ACCESS_TOKEN_SECRET!,
-        async (error: unknown) => {
-          if (error) {
-            reject(error);
-          } else {
-            resolve(true);
-          }
+  return new Promise<boolean>((resolve, reject) => {
+    jwt.verify(
+      token,
+      process.env.ACCESS_TOKEN_SECRET!,
+      async (error: unknown) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(true);
         }
-      );
-    });
-  } catch (error) {
-    logger.error("Error verify forgot password", error);
-
-    throw error;
-  }
+      }
+    );
+  });
 };
 
 export const confirmForgotPasswordService = async (
@@ -400,33 +377,27 @@ export const confirmForgotPasswordService = async (
   password: string,
   cf_password: string
 ) => {
-  try {
-    return new Promise<boolean>((resolve, reject) => {
-      jwt.verify(
-        token,
-        process.env.ACCESS_TOKEN_SECRET!,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        async (err: unknown, user: any) => {
-          if (err) {
-            reject(err);
-            return;
-          }
-          if (password !== cf_password) {
-            reject(new Error("Password and confirm password not match."));
-            return;
-          }
-
-          const passwordHash = await bcrypt.hash(password, 10);
-
-          await User.findByIdAndUpdate(user.id, { password: passwordHash });
-
-          resolve(true);
+  return new Promise<boolean>((resolve, reject) => {
+    jwt.verify(
+      token,
+      process.env.ACCESS_TOKEN_SECRET!,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      async (err: unknown, user: any) => {
+        if (err) {
+          reject(err);
+          return;
         }
-      );
-    });
-  } catch (error) {
-    logger.error("Error confirm forgot password", error);
+        if (password !== cf_password) {
+          reject(new Error("Password and confirm password not match."));
+          return;
+        }
 
-    throw error;
-  }
+        const passwordHash = await bcrypt.hash(password, 10);
+
+        await User.findByIdAndUpdate(user.id, { password: passwordHash });
+
+        resolve(true);
+      }
+    );
+  });
 };

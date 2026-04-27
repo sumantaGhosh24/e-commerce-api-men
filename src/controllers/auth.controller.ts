@@ -82,6 +82,8 @@ export const registerVerify = async (req: Request, res: Response) => {
     res.json({ accesstoken: data.accesstoken, ...data.user._doc });
     return;
   } catch (error: unknown) {
+    logger.error("Error verify register", error);
+
     res.status(500).json({
       message: error instanceof Error ? error.message : String(error),
     });
@@ -160,6 +162,8 @@ export const loginVerify = async (req: Request, res: Response) => {
     res.json({ accesstoken: data.accesstoken, ...data.user._doc });
     return;
   } catch (error: unknown) {
+    logger.error("Error login verify", error);
+
     res.status(500).json({
       message: error instanceof Error ? error.message : String(error),
     });
@@ -183,6 +187,8 @@ export const refresh_token = async (req: Request, res: Response) => {
 
     res.json({ accesstoken: data.accesstoken, ...data.user._doc });
   } catch (error: unknown) {
+    logger.error("Error refresh token", error);
+
     res.status(500).json({
       message: error instanceof Error ? error.message : String(error),
     });
@@ -200,6 +206,8 @@ export const logout = (req: Request, res: Response) => {
 
     res.json({ message: "Logged Out." });
   } catch (error: unknown) {
+    logger.error("Error logout", error);
+
     res.status(500).json({
       message: error instanceof Error ? error.message : String(error),
     });
@@ -267,6 +275,8 @@ export const validateConfirmForgotPassword = async (
     res.status(200).json({ message: "Now set your new password." });
     return;
   } catch (error: unknown) {
+    logger.error("Error validate confirm forgot password", error);
+
     res.status(500).json({
       message: error instanceof Error ? error.message : String(error),
     });
@@ -309,6 +319,8 @@ export const confirmForgotPassword = async (req: Request, res: Response) => {
       .json({ message: "Your password has been updated, now login." });
     return;
   } catch (error: unknown) {
+    logger.error("Error confirm forgot password", error);
+
     res.status(400).json({
       message: error instanceof Error ? error.message : String(error),
     });
