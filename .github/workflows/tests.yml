@@ -20,8 +20,8 @@ jobs:
       - name: Setup Node.js 20.x
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
-          cache: 'npm'
+          node-version: "20.x"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -31,6 +31,21 @@ jobs:
         run: |
           echo "::notice::Running test suite..."
           npm test
+        env:
+          ACCESS_TOKEN_SECRET: ${{ secrets.ACCESS_TOKEN_SECRET || 'access-token-secret' }}
+          REFRESH_TOKEN_SECRET: ${{ secrets.REFRESH_TOKEN_SECRET || 'refresh-token-secret' }}
+          MONGODB_URL: ${{ secrets.MONGODB_URL }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          EMAIL: ${{ secrets.EMAIL || 'onboarding@resend.dev' }}
+          FRONTEND_URL: ${{ secrets.FRONTEND_URL || 'http://localhost:3000' }}
+          CLOUD_NAME: ${{ secrets.CLOUD_NAME }}
+          CLOUD_API_KEY: ${{ secrets.CLOUD_API_KEY }}
+          CLOUD_API_SECRET: ${{ secrets.CLOUD_API_SECRET }}
+          RAZORPAY_KEY_ID: ${{ secrets.RAZORPAY_KEY_ID }}
+          RAZORPAY_KEY_SECRET: ${{ secrets.RAZORPAY_KEY_SECRET }}
+          REDIS_URL: ${{ secrets.REDIS_URL }}
+          ARCJET_ENV: ${{ secrets.ARCJET_ENV || 'development' }}
+          ARCJET_KEY: ${{ secrets.ARCJET_KEY }}
 
       - name: Upload coverage reports
         if: always()
